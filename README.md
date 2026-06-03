@@ -90,10 +90,12 @@ Mat = {
       },
 ```
 ```c
-enum slang_ir_matrix_layouts {
-    SLANG_IR_MATRIX_LAYOUT_UNKNOWN     = 0,
-    SLANG_IR_MATRIX_LAYOUT_ROW_MAJOR   = 1,
-    SLANG_IR_MATRIX_LAYOUT_COLUMN_MAJOR = 2,
+enum
+slang_ir_matrix_layouts
+{
+  SLANG_IR_MATRIX_LAYOUT_UNKNOWN     = 0,
+  SLANG_IR_MATRIX_LAYOUT_ROW_MAJOR   = 1,
+  SLANG_IR_MATRIX_LAYOUT_COLUMN_MAJOR = 2,
 };
 
 slang_ir_matrix_type slang_ir_type_get_matrix(slang_ir_type *type, int64_t num_rows, int64_t num_cols, enum slang_ir_matrix_layouts layout)

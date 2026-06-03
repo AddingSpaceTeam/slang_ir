@@ -42,7 +42,7 @@ Vec = {
 					struct_name = "VectorType",
 					operands = { { "elementType", "IRType" }, { "elementCount" } },
 					hoistable = true,
-			},
+      },
 ```
 ```c
 // get vec type

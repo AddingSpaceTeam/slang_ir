@@ -100,3 +100,5 @@ slang_ir_matrix_layouts
 
 slang_ir_matrix_type slang_ir_type_get_matrix(slang_ir_type *type, int64_t num_rows, int64_t num_cols, enum slang_ir_matrix_layouts layout)
 ```
+
+`slang-ir-insts.lua` have many types that better to develop as builtin (or magic) types. 

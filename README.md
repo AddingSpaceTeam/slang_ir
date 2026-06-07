@@ -3,6 +3,8 @@ Main goal of `slang_ir` is to provide access to the internal intermediate repres
 
 API design of this library is heavily inspired by `libgccjit`.
 
+Library targets to mid-level instructions (not high-level that slang specific like Result type), but with exceptions for automatic differentiation support.
+
 # Types
 ```c
 type slang_ir_type
@@ -100,5 +102,3 @@ slang_ir_matrix_layouts
 
 slang_ir_matrix_type slang_ir_type_get_matrix(slang_ir_type *type, int64_t num_rows, int64_t num_cols, enum slang_ir_matrix_layouts layout)
 ```
-
-`slang-ir-insts.lua` have many types that better to develop as builtin (or magic) types. 

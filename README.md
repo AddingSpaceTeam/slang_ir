@@ -116,27 +116,31 @@ slang_ir_matrix_type slang_ir_type_get_matrix(slang_ir_type *type, int64_t num_r
 Unlike libgccjit, we need to create function type and then function, it better map to modern programming languages.
 First param is return type / return param
 ```
-slang_ir_function_param_create(slang_ir_builder* builder, slang_ir_location* locs, lang_ir_type* type, const char* name)
+slang_ir_function_param_create(slang_ir_builder* builder, slang_ir_location* loc, lang_ir_type* type, const char* name)
 
 slang_ir_type_get_func(int num_params, gcc_jit_param **params)
 
 slang_ir_function slang_ir_function_create(slang_ir_builder* builder, slang_ir_type* function_type, const char *name)
+
+slang_ir_rvalue *slang_ir_function_call(slang_ir_builder* builder, slang_ir_location* loc, slang_ir_function* func, int num_args, slang_ir_rvalue **args)
+slang_ir_lvalue *slang_ir_function_discard(slang_ir_rvalue *fn_expr) // need for lvalue function call, if rvalue is not function: NULL
 ```
-## Function annotations
-### Entry point
+
+# Function annotations
+## Entry point
 ```c
 enum
 slang_ir_entry_point_annotations
 {
-  SLANG_IR_ENTRY_POINT_ANNOTATION_STAGE_VERTEX,
-  SLANG_IR_ENTRY_POINT_ANNOTATION_STAGE_FRAGMENT,
-  SLANG_IR_ENTRY_POINT_ANNOTATION_STAGE_COMPUTE,
-  // place for tesselation stages etc.
+  SLANG_IR_ENTRY_POINT_ANNOTATION_STAGE_VERTEX   = 0,
+  SLANG_IR_ENTRY_POINT_ANNOTATION_STAGE_FRAGMENT = 1,
+  SLANG_IR_ENTRY_POINT_ANNOTATION_STAGE_COMPUTE  = 2,
+  // will be place for tesselation stage etc.
 }
 
 void slang_ir_func_add_entry_point_annotation(slang_ir_builder* builder, slang_ir_function* func, enum slang_ir_entry_point_annotations annotation)
 ```
-### Numthreads
+## Numthreads
 ```c
 void slang_ir_func_add_numthreads_annotation(slang_ir_builder* builder, slang_ir_function* func, int x, int y, int z)
 ```
@@ -147,11 +151,70 @@ API currently support annotations only for normal differentiation, without custo
 enum
 slang_ir_differentiation_annotations
 {
-  SLANG_IR_DIFFERENTIATION_ANNOTATION_ZERO,
-  SLANG_IR_DIFFERENTIATION_ANNOTATION_TYPE,
-  SLANG_IR_DIFFERENTIATION_ANNOTATION_ADD
+  SLANG_IR_DIFFERENTIATION_ANNOTATION_ZERO = 0,
+  SLANG_IR_DIFFERENTIATION_ANNOTATION_TYPE = 1,
+  SLANG_IR_DIFFERENTIATION_ANNOTATION_ADD  = 2,
 }
 
 slang_ir_function slang_ir_differentiate(slang_ir_builder* builder, slang_ir_function* func)
 void slang_ir_add_differentiation_annotation(slang_ir_builder* builder, slang_ir_function* func, enum slang_ir_differentiation_annotations annotation)
+```
+# Expressions
+```c
+type slang_ir_rvalue
+```
+## Unary Operations
+```c
+enum
+slang_ir_unary_op
+{
+  SLANG_IR_UNARY_OP_ARITH_NEGATE,   // -x
+  SLANG_IR_UNARY_OP_BITWISE_NEGATE, // ~x
+  SLANG_IR_UNARY_OP_LOGICAL_NEGATE, // !x
+}
+
+slang_ir_rvalue *gcc_jit_context_create_unary_op(slang_ir_builder* builder, slang_ir_location *loc, enum slang_ir_unary_op op, slang_ir_type *result_type, slang_ir_rvalue *x)
+```
+## Binary Operations
+```c
+enum
+slang_ir_binary_op
+{
+  SLANG_IR_BINARY_OP_ARITH_ADD,   // x + y
+  SLANG_IR_BINARY_OP_ARITH_SUB,   // x - y
+  SLANG_IR_BINARY_OP_ARITH_MUL,   // x * y
+  SLANG_IR_BINARY_OP_ARITH_DIV,   // x / y
+  SLANG_IR_BINARY_OP_ARITH_MOD,   // x % y
+  SLANG_IR_BINARY_OP_BITWISE_AND, // x & y
+  SLANG_IR_BINARY_OP_BITWISE_XOR, // x ^ y
+  SLANG_IR_BINARY_OP_BITWISE_OR,  // x | y
+  SLANG_IR_BINARY_OP_LOGICAL_AND, // x && y
+  SLANG_IR_BINARY_OP_LOGICAL_OR,  // x || y
+  SLANG_IR_BINARY_OP_SHL,         // x << y
+  SLANG_IR_BINARY_OP_SHR,         // x >> y
+}
+
+slang_ir_rvalue *gcc_jit_context_create_binary_op(slang_ir_builder* builder, slang_ir_location *loc, enum slang_ir_binary_op op, slang_ir_type *result_type, slang_ir_rvalue *a, slang_ir_rvalue *b)
+```
+## Comparisons
+```c
+enum
+slang_ir_comparison
+{
+  SLANG_IR_COMPARISON_EQ, // x == y
+  SLANG_IR_COMPARISON_NE, // x != y
+  SLANG_IR_COMPARISON_LT, // x < y
+  SLANG_IR_COMPARISON_LE, // x <= y
+  SLANG_IR_COMPARISON_GT, // x > y
+  SLANG_IR_COMPARISON_GE, // x >= y
+}
+
+slang_ir_rvalue *gcc_jit_context_create_comparison(slang_ir_builder* builder, slang_ir_location *loc, enum slang_ir_comparison op, slang_ir_rvalue *a, slang_ir_rvalue *b)
+```
+# Control flow
+TODO
+
+# Builder
+```c
+char *slang_ir_builder_emit_spirv(slang_ir_builder* builder, slang_ir_function* entry_point)
 ```

@@ -5,6 +5,16 @@ API design of this library is heavily inspired by `libgccjit`.
 
 Library targets to mid-level instructions (not high-level that slang specific like Result type), but with exceptions for automatic differentiation support.
 
+# Locations
+```c
+// source code location
+type slang_ir_location
+```
+you can always pass NULL to any API entrypoint accepting one.
+```c
+slang_ir_location_create(slang_ir_builder* builder, const char* filename, int line, int column)
+```
+
 # Types
 ```c
 type slang_ir_type
@@ -101,4 +111,47 @@ slang_ir_matrix_layouts
 };
 
 slang_ir_matrix_type slang_ir_type_get_matrix(slang_ir_type *type, int64_t num_rows, int64_t num_cols, enum slang_ir_matrix_layouts layout)
+```
+## Functions
+Unlike libgccjit, we need to create function type and then function, it better map to modern programming languages.
+First param is return type / return param
+```
+slang_ir_function_param_create(slang_ir_builder* builder, slang_ir_location* locs, lang_ir_type* type, const char* name)
+
+slang_ir_type_get_func(int num_params, gcc_jit_param **params)
+
+slang_ir_function slang_ir_function_create(slang_ir_builder* builder, slang_ir_type* function_type, const char *name)
+```
+## Function annotations
+### Entry point
+```c
+enum
+slang_ir_entry_point_annotations
+{
+  SLANG_IR_ENTRY_POINT_ANNOTATION_STAGE_VERTEX,
+  SLANG_IR_ENTRY_POINT_ANNOTATION_STAGE_FRAGMENT,
+  SLANG_IR_ENTRY_POINT_ANNOTATION_STAGE_COMPUTE,
+  // place for tesselation stages etc.
+}
+
+void slang_ir_func_add_entry_point_annotation(slang_ir_builder* builder, slang_ir_function* func, enum slang_ir_entry_point_annotations annotation)
+```
+### Numthreads
+```c
+void slang_ir_func_add_numthreads_annotation(slang_ir_builder* builder, slang_ir_function* func, int x, int y, int z)
+```
+
+### Auto differentiation
+API currently support annotations only for normal differentiation, without custom differentiation support in user code. For it, these 3 annotations is enough
+```c
+enum
+slang_ir_differentiation_annotations
+{
+  SLANG_IR_DIFFERENTIATION_ANNOTATION_ZERO,
+  SLANG_IR_DIFFERENTIATION_ANNOTATION_TYPE,
+  SLANG_IR_DIFFERENTIATION_ANNOTATION_ADD
+}
+
+slang_ir_function slang_ir_differentiate(slang_ir_builder* builder, slang_ir_function* func)
+void slang_ir_add_differentiation_annotation(slang_ir_builder* builder, slang_ir_function* func, enum slang_ir_differentiation_annotations annotation)
 ```
